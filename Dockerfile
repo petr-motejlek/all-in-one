@@ -22,17 +22,17 @@ RUN	true \
 		-mindepth 1 \
 		-delete
 
-# TODO Install tmux and start a bash session as well as vim
 FROM compile-deps as dev
 RUN	true \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		vim.tiny \
+		git \
+		tmux \
+		vim \
 	&& find /var/lib/apt/lists \
 		-mindepth 1 \
 		-delete
-
-ENTRYPOINT ["/usr/bin/env", "bash"]
+ENTRYPOINT ["/usr/bin/env", "tmux"]
 
 
 FROM compile-deps as compiled
@@ -67,5 +67,4 @@ FROM runtime-deps
 COPY --from=compiled /opt/nginx /opt/nginx
 COPY --from=compiled /run/config /run/config
 COPY --from=compiled /run/secret /run/secret
-
 ENTRYPOINT ["/opt/nginx/sbin/nginx"]
