@@ -34,35 +34,14 @@ RUN	true \
 		-mindepth 1 \
 		-delete
 ENTRYPOINT ["/usr/bin/env", "tmux"]
+VOLUME "/src"
 
 
 FROM compile-deps as compiled
 COPY /src /src
-# TODO Convert this into a Makefile script to be runnable
-# using "dev" target
 RUN	true \
 	&& pushd /src \
-		&& pushd nginx \
-			&& ./auto/configure \
-				--prefix=/opt/nginx \
-				--conf-path=/run/config/nginx.conf \
-				--error-log-path=/dev/stderr \
-				--with-http_ssl_module \
-			&& make \
-			&& make install \
-		&& popd \
-		&& mkdir -p /run/config \
-		&& cp nginx.conf /run/config/ \
-		&& mkdir -p /run/secret \
-		&& openssl req \
-			-new \
-			-newkey rsa:4096 \
-			-days 365 \
-			-nodes \
-			-x509 \
-			-subj "/CN=localhost" \
-			-keyout /run/secret/server.key.pem \
-			-out /run/secret/server.crt.pem \
+	&& make \
 	&& popd
 
 
