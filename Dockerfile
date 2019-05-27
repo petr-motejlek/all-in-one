@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.0-experimental
 
 FROM ubuntu:latest as runtime-deps
+SHELL ["/usr/bin/env", "bash", "-xeuo", "pipefail", "-c"]
 RUN	true \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
@@ -36,31 +37,33 @@ ENTRYPOINT ["/usr/bin/env", "tmux"]
 
 
 FROM compile-deps as compiled
-# The default configuration file should be part of /src,
-# but I don't wish to fork nginx just because of that :)
-COPY nginx.conf /run/config/nginx.conf
 COPY /src /src
 # TODO Convert this into a Makefile script to be runnable
 # using "dev" target
 RUN	true \
-	&& cd /src \
-	&& ./auto/configure \
-		--prefix=/opt/nginx \
-		--conf-path=/run/config/nginx.conf \
-		--error-log-path=/dev/stderr \
-		--with-http_ssl_module \
-	&& make \
-	&& make install \
-	&& mkdir -p /run/secret \
-	&& openssl req \
-		-new \
-		-newkey rsa:4096 \
-		-days 365 \
-		-nodes \
-		-x509 \
-		-subj "/CN=localhost" \
-		-keyout /run/secret/server.key.pem \
-		-out /run/secret/server.crt.pem
+	&& pushd /src \
+		&& pushd nginx \
+			&& ./auto/configure \
+				--prefix=/opt/nginx \
+				--conf-path=/run/config/nginx.conf \
+				--error-log-path=/dev/stderr \
+				--with-http_ssl_module \
+			&& make \
+			&& make install \
+		&& popd \
+		&& mkdir -p /run/config \
+		&& cp nginx.conf /run/config/ \
+		&& mkdir -p /run/secret \
+		&& openssl req \
+			-new \
+			-newkey rsa:4096 \
+			-days 365 \
+			-nodes \
+			-x509 \
+			-subj "/CN=localhost" \
+			-keyout /run/secret/server.key.pem \
+			-out /run/secret/server.crt.pem \
+	&& popd
 
 
 FROM runtime-deps
