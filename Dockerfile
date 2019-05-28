@@ -33,8 +33,10 @@ RUN	true \
 	&& find /var/lib/apt/lists \
 		-mindepth 1 \
 		-delete
-ENTRYPOINT ["/usr/bin/env", "tmux"]
 VOLUME "/src"
+ENTRYPOINT ["/usr/bin/env", "tmux"]
+CMD ["-uCC"]
+WORKDIR "/src"
 
 
 FROM compile-deps as compiled
