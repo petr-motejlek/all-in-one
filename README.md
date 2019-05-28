@@ -16,12 +16,24 @@ Feel free to send me PR’s, I’d be happy to include new ideas, but keep it si
 I would love for people to be able to take what has been done here, make it their own, and improve on it.
 
 ## Requirements
-* Docker Client and Docker Engine
+* Docker Client and Docker Engine (that supports BuildKit).
 * SCM of your choice (if you wish to clone this repository, then that’s Git).
+
+## Building and Running The IDE (`vim`)
+```bash
+DOCKER_BUILDKIT=1 docker build -t all-in-one:dev-latest -t dev .
+
+docker run -it --rm -v "$(pwd)":/work all-in-one
+```
+_NOTE_: Will wipe everything that you do inside the container with any file outside of `/work`, which will be mapped to the repository on your machine.
+_NOTE_: I work on macOS with iTerm2, so the default run configuration will attempt to launch a headless `tmux` session. If you don’t want that, do (replace `bash` with any other command you’d like to run, e.g. `tmux`)
+```bash
+docker run -it --rm -v "$(pwd)":/work --entrypoint /usr/bin/env all-in-one bash
+```
 
 ## Building, Running and Verifiyng the Service
 ```bash
-docker build -t all-in-one:latest .
+DOCKER_BUILDKIT=1 docker build -t all-in-one:latest .
 
 docker run -p 65443:443 all-in-one
 
