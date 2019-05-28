@@ -21,6 +21,9 @@ I would love for people to be able to take what has been done here, make it thei
 
 ## Building and Running The IDE (`vim`)
 ```bash
+git submodule init
+git submodule fetch
+
 DOCKER_BUILDKIT=1 docker build -t all-in-one:dev-latest -t dev .
 
 docker run -it --rm -v "$(pwd)":/work all-in-one
