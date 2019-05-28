@@ -23,6 +23,7 @@ RUN	true \
 		-mindepth 1 \
 		-delete
 
+
 FROM compile-deps as dev
 RUN	true \
 	&& apt-get update \
@@ -33,16 +34,16 @@ RUN	true \
 	&& find /var/lib/apt/lists \
 		-mindepth 1 \
 		-delete
-VOLUME "/src"
-ENTRYPOINT ["/usr/bin/env", "tmux"]
+VOLUME "/work"
+ENTRYPOINT ["tmux"]
 CMD ["-uCC"]
-WORKDIR "/src"
+WORKDIR "/work"
 
 
 FROM compile-deps as compiled
-COPY /src /src
+COPY /src /work/src
 RUN	true \
-	&& pushd /src \
+	&& pushd /work/src \
 	&& make \
 	&& popd
 
