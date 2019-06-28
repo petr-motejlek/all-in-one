@@ -2,13 +2,17 @@
 
 FROM ubuntu:latest as runtime-deps
 SHELL ["/usr/bin/env", "bash", "-xeuo", "pipefail", "-c"]
+ENV TINI_VERSION v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN	true \
+    && chmod +x /tini \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		ca-certificates \
 	&& find /var/lib/apt/lists \
 		-mindepth 1 \
 		-delete
+ENTRYPOINT ["/tini", "--"]
 
 
 FROM runtime-deps as compile-deps
@@ -35,8 +39,7 @@ RUN	true \
 		-mindepth 1 \
 		-delete
 VOLUME "/work"
-ENTRYPOINT ["tmux"]
-CMD ["-uCC"]
+CMD ["tmux", "-uCC"]
 WORKDIR "/work"
 
 
@@ -52,4 +55,4 @@ FROM runtime-deps
 COPY --from=compiled /opt/nginx /opt/nginx
 COPY --from=compiled /run/config /run/config
 COPY --from=compiled /run/secret /run/secret
-ENTRYPOINT ["/opt/nginx/sbin/nginx"]
+CMD ["/opt/nginx/sbin/nginx"]
