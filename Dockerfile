@@ -56,3 +56,4 @@ COPY --from=compiled /opt/nginx /opt/nginx
 COPY --from=compiled /run/config /run/config
 COPY --from=compiled /run/secret /run/secret
 CMD ["/opt/nginx/sbin/nginx"]
+EXPOSE 443
